@@ -1,6 +1,6 @@
 py -m pip install pandas
 py -m pip install streamlit
-py -m pip install streamlit_option_menu
+py -m pip install streamlit-option-menu
 py -m pip install MySQLdb
 py -m pip install streamlit_authenticator
 py -m pip install yaml
