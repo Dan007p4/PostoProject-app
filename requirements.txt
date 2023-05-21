@@ -1,0 +1,10 @@
+py -m pip install pandas
+py -m pip install streamlit
+py -m pip install streamlit_option_menu
+py -m pip install MySQLdb
+py -m pip install streamlit_authenticator
+py -m pip install yaml
+py -m pip install sqlalchemy
+py -m pip install seaborn
+py -m pip install matplotlib.pyplot
+
