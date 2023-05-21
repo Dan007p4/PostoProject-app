@@ -6,9 +6,7 @@ import MySQLdb
 import streamlit_authenticator as stauth
 import yaml
 import xlrd
-from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
-from streamlit_extras.app_logo import add_logo
 import seaborn as sns
 import matplotlib.pyplot as plt
 
