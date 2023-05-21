@@ -1,6 +1,7 @@
 pandas
 streamlit-option-menu
-MySQLdb
+mysql-python
+mysql-python-conncetor
 streamlit-authenticator
 PyYAML
 xlrd
