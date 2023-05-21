@@ -1,5 +1,4 @@
 pandas
-
 streamlit-option-menu
 MySQLdb
 streamlit-authenticator
