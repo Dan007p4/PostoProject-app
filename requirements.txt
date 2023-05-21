@@ -6,5 +6,5 @@ py -m pip install streamlit_authenticator
 py -m pip install yaml
 py -m pip install sqlalchemy
 py -m pip install seaborn
-py -m pip install matplotlib.pyplot
+py -m pip install matplotlib
 
