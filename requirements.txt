@@ -1,4 +1,4 @@
 pandas==2.0.1
 streamlit-option-menu==0.3.4
-mysqlclient ==2.1.1
+MySQL-python==1.2.5
 
