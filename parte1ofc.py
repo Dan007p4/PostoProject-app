@@ -1,19 +1,27 @@
-
 import pandas as pd
-
-
+import streamlit as st
+from streamlit_option_menu import option_menu
+import streamlit_authenticator as stauth
+import yaml
+import xlrd
+import mysql.connector
+from yaml.loader import SafeLoader
+from sqlalchemy import create_engine
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 ##FAZENDO CONEXÃO COM O DB##
 
-connection = MySQLdb.connect(
+connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
-    user="uavf6qoz5z5ocrlx82yl",
-    passwd="pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs",
+    user="woespsre4lj6dp0r322k",
+    passwd="pscale_pw_JQDoNmNjU3nfdsdDuF9pJ4zLQ9CzieSFSIzEbcF5fwJ",
     db="database",
-    ssl={
-        "ca": "cacert-2023-01-10.pem"
-    }
+    ssl_ca="cacert-2023-01-10.pem"
+    # ssl={
+    #     "ca": "cacert-2023-01-10.pem"
+    # }
 
 
 )
@@ -187,7 +195,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                         create_command = create_command + \
                             str(list_columnsN[i]) + " " + \
                             str(list_columnsT[i])+","
-                st.write(create_command)
+                st.write("Criado com sucesso!")
                 c.execute(create_command)
                 count = -1
                 st.session_state.new_form = 0
@@ -199,7 +207,7 @@ if (authentication_status == True) & (username == 'admistrador'):
             if new_concat:
                 with st.form(key='concat_columns'):
                     c.execute(
-                        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'sex';")
+                        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
                     list_tables = []
 
                     tables = c.fetchall()
@@ -233,7 +241,7 @@ if (authentication_status == True) & (username == 'admistrador'):
         st.title("Analise de dados")
         with st.form(key='concat_columns'):
             c.execute(
-                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'sex';")
+                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
             list_tables = []
             list_features = []
             list_chart = ["Grafico de barras", "Grafico de linha"]
@@ -250,7 +258,7 @@ if (authentication_status == True) & (username == 'admistrador'):
         list_tablesofc = st.selectbox('Escolha as tabelas a serem analisadas',
                                       list_tables)
         c.execute(
-            "SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'sex' and table_name = '" + str(list_tablesofc)+"';")
+            "SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '" + str(list_tablesofc)+"';")
         columns = c.fetchall()
 
         for i in columns:
@@ -300,7 +308,7 @@ if (authentication_status == True) & (username == 'admistrador'):
         st.session_state.new_form2 = 0
         st.title("Insira sua tabela e as informações necessarias abaixo")
         c.execute(
-            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'sex';")
+            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
         list_tables = []
 
         tables = c.fetchall()
@@ -363,7 +371,7 @@ elif (authentication_status == True) & (username == 'usuario'):
         st.session_state.new_form2 = 0
         st.title("Insira sua tabela e as informações necessarias abaixo")
         c.execute(
-            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'sex';")
+            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
         list_tables = []
 
         tables = c.fetchall()
