@@ -1,4 +1,10 @@
 pandas==2.0.1
 streamlit-option-menu==0.3.4
-mysqlclient==2.1.1
+streamlit-authenticator==0.2.2
+PyYAML==6.0
+xlrd==2.0.1
+SQLAlchemy ==2.0.15
+seaborn==0.12.2
+matplotlib== 3.7.1
+mysql-connector-python ==8.0.33
 
