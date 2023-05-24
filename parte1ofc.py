@@ -1,13 +1,6 @@
 
 import pandas as pd
-from streamlit_option_menu import option_menu
-import MySQLdb
-import streamlit_authenticator as stauth
-import yaml
-import xlrd
-from sqlalchemy import create_engine
-import seaborn as sns
-import matplotlib.pyplot as plt
+
 
 
 ##FAZENDO CONEXÃO COM O DB##
