@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
-    user="e1fsy3z7ob9w55yo1go8",
-    passwd="pscale_pw_dieXIIWuZ4ujAYRIEl8R81fg7GdITYWqPaz5WVeyey0",
+    user="st.secrets["db_username"]",
+    passwd="st.secrets["db_password"]",
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
     # ssl={
