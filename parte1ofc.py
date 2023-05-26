@@ -10,9 +10,7 @@ from sqlalchemy import create_engine
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-st.set_page_config(
-    page_icon="🧊",
-    }
+st.set_page_config(page_icon="🧊")
 ##FAZENDO CONEXÃO COM O DB##
 
 connection = mysql.connector.connect(
