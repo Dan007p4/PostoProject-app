@@ -69,6 +69,7 @@ if (authentication_status == True) & (username == 'admistrador'):
 
     if selected == "Gerenciador de dados":
         st.session_state.new_form2 = 0
+        st.divider()
         st.title("Gerenciador de dados")
 
     if selected == "Manipulador de dados":
@@ -93,6 +94,7 @@ if (authentication_status == True) & (username == 'admistrador'):
             st.session_state['datau'] = lista_datau = []
 
         ##PRIMEIRA TELA DA ABA##
+        st.divider()
         st.title("Manipulador de dados")
 
         if st.session_state.columns_number > 0:
@@ -238,6 +240,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                     st.button("Cancelar")
 
     if selected == "Analise de dados":
+        st.divider()
         st.title("Analise de dados")
         with st.form(key='concat_columns'):
             c.execute(
@@ -274,25 +277,25 @@ if (authentication_status == True) & (username == 'admistrador'):
         # func_chart = st.selectbox('Escolha a função do grafico',
         #                           list_chartfunc)
 
-        data = pd.read_sql("SELECT * FROM "+list_tablesofc, con=connection)
-        st.dataframe(data)
-        st.write(type_columns)
-        fig = plt.figure(figsize=(12, 9))
+        if (list_tablesofc != None) & (type_columns != []) & (list_tablesofc != None):
+            data = pd.read_sql("SELECT * FROM "+list_tablesofc, con=connection)
+            st.dataframe(data)
+            fig = plt.figure(figsize=(12, 9))
 
-        if type_chart == "Grafico de barras":
-            sns.countplot(x=data[str(type_columns[0])])
-            st.pyplot(fig)
+            if type_chart == "Grafico de barras":
+                sns.countplot(x=data[str(type_columns[0])])
+                st.pyplot(fig)
 
-        # if type_chart == "Grafico de pizza":
-        #     sns.pieplot(x=data[str(type_columns[0])])
-        #     st.pyplot(fig)
+            # if type_chart == "Grafico de pizza":
+            #     sns.pieplot(x=data[str(type_columns[0])])
+            #     st.pyplot(fig)
 
-        if type_chart == "Grafico de linha":
-            sns.lineplot(data=data, x=data[str(type_columns[0])],
-                         y=data[str(type_columns[1])])
-            st.pyplot(fig)
+            if type_chart == "Grafico de linha":
+                sns.lineplot(data=data, x=data[str(type_columns[0])],
+                             y=data[str(type_columns[1])])
+                st.pyplot(fig)
 
-        st.session_state.new_form2 = 0
+            st.session_state.new_form2 = 0
 
         # dados = st.file_uploader("Tabela", type=["xlsx"])
         # dados = pd.read_excel(dados, sheet_name='BASE DE DADOS')
@@ -306,6 +309,7 @@ if (authentication_status == True) & (username == 'admistrador'):
 
     if selected == "Subir tabelas":
         st.session_state.new_form2 = 0
+        st.divider()
         st.title("Insira sua tabela e as informações necessarias abaixo")
         c.execute(
             "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
@@ -326,8 +330,12 @@ if (authentication_status == True) & (username == 'admistrador'):
 
         st.subheader(
             ":red[Clique no botão 'Browse files'a baixo para subir a tabela ⇩]")
+
+        c.execute("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
+        columns = c.fetchall()
         dados4 = st.file_uploader("Tabela", type=["xlsx"])
-        if dados4 != None:
+
+        if (dados4 != None) & (selection_type == "TIPO_POSTO_PADRAO"):
             dados4 = pd.read_excel(
                 dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
             dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
@@ -336,22 +344,64 @@ if (authentication_status == True) & (username == 'admistrador'):
             dados4 = dados4.reset_index()
             dados4 = dados4.drop('index', axis=1)
 
-            # if dados4.shape[1] != number_len:
-            #     st.write("Tipo errado")
-            # st.write(dados4.shape[1])
-            # st.write(number_len)
+            number_columns_verify = []
+            for i in dados4.columns:
+                for x in columns:
+                    if i in x:
+                        number_columns_verify.append(x)
 
-            st.dataframe(dados4)
-            name = st.text_input("Nome da unidade")
-            ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
 
-            engine = create_engine(
-                'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-            # engine = create_engine(
-            #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                # if dados4.shape[1] != number_len:
+                #     st.write("Tipo errado")
+                # st.write(dados4.shape[1])
+                # st.write(number_len)
 
-            dados4.to_sql("aa", con=engine,
-                          if_exists='replace', index=False)
+                st.dataframe(dados4)
+                name = st.text_input("Nome da unidade")
+                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+
+                engine = create_engine(
+                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                # engine = create_engine(
+                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+
+                dados4.to_sql(name, con=engine,
+                              if_exists='replace', index=False)
+            else:
+                st.warning("Tipo não compatível")
+
+        elif (dados4 != None):
+
+            dados4 = pd.read_excel(dados4)
+            number_columns_verify = []
+            for i in dados4.columns:
+                for x in columns:
+                    if i in x:
+                        number_columns_verify.append(x)
+
+            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+
+                # if dados4.shape[1] != number_len:
+                #     st.write("Tipo errado")
+                # st.write(dados4.shape[1])
+                # st.write(number_len)
+
+                st.dataframe(dados4)
+                name = st.text_input("Nome da unidade")
+                name = st.text_input("Nome da unidade")
+
+                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+
+                engine = create_engine(
+                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                # engine = create_engine(
+                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+
+                dados4.to_sql(name, con=engine,
+                              if_exists='replace', index=False)
+            else:
+                st.error("Tipo não compatível")
 
 
 elif (authentication_status == True) & (username == 'usuario'):
@@ -369,6 +419,7 @@ elif (authentication_status == True) & (username == 'usuario'):
 
     if selected == "Subir tabelas":
         st.session_state.new_form2 = 0
+        st.divider()
         st.title("Insira sua tabela e as informações necessarias abaixo")
         c.execute(
             "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
@@ -389,8 +440,12 @@ elif (authentication_status == True) & (username == 'usuario'):
 
         st.subheader(
             ":red[Clique no botão 'Browse files'a baixo para subir a tabela ⇩]")
+
+        c.execute("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
+        columns = c.fetchall()
         dados4 = st.file_uploader("Tabela", type=["xlsx"])
-        if dados4 != None:
+
+        if (dados4 != None) & (selection_type == "TIPO_POSTO_PADRAO"):
             dados4 = pd.read_excel(
                 dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
             dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
@@ -399,22 +454,64 @@ elif (authentication_status == True) & (username == 'usuario'):
             dados4 = dados4.reset_index()
             dados4 = dados4.drop('index', axis=1)
 
-            # if dados4.shape[1] != number_len:
-            #     st.write("Tipo errado")
-            # st.write(dados4.shape[1])
-            # st.write(number_len)
+            number_columns_verify = []
+            for i in dados4.columns:
+                for x in columns:
+                    if i in x:
+                        number_columns_verify.append(x)
 
-            st.dataframe(dados4)
-            name = st.text_input("Nome da unidade")
-            ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
 
-            engine = create_engine(
-                'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-            # engine = create_engine(
-            #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                # if dados4.shape[1] != number_len:
+                #     st.write("Tipo errado")
+                # st.write(dados4.shape[1])
+                # st.write(number_len)
 
-            dados4.to_sql("aa", con=engine,
-                          if_exists='replace', index=False)
+                st.dataframe(dados4)
+                name = st.text_input("Nome da unidade")
+                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+
+                engine = create_engine(
+                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                # engine = create_engine(
+                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+
+                dados4.to_sql(name, con=engine,
+                              if_exists='replace', index=False)
+            else:
+                st.warning("Tipo não compatível")
+
+        elif (dados4 != None):
+
+            dados4 = pd.read_excel(dados4)
+            number_columns_verify = []
+            for i in dados4.columns:
+                for x in columns:
+                    if i in x:
+                        number_columns_verify.append(x)
+
+            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+
+                # if dados4.shape[1] != number_len:
+                #     st.write("Tipo errado")
+                # st.write(dados4.shape[1])
+                # st.write(number_len)
+
+                st.dataframe(dados4)
+                name = st.text_input("Nome da unidade")
+                name = st.text_input("Nome da unidade")
+
+                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+
+                engine = create_engine(
+                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                # engine = create_engine(
+                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+
+                dados4.to_sql(name, con=engine,
+                              if_exists='replace', index=False)
+            else:
+                st.error("Tipo não compatível")
 elif authentication_status == False:
     st.error('Senha ou Usuario esta incorreto')
 elif authentication_status == None:
