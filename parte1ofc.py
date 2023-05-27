@@ -60,7 +60,7 @@ if (authentication_status == True) & (username == 'admistrador'):
     st.sidebar.image(
         "WhatsApp Image 2023-02-21 at 14.22.25 (1).jpeg", use_column_width=True)
 
-    # logo = st.image("rsz_1rsz_whatsapp_image_2023-02-21_at_142225_1.jpg")
+    # logo = st.image("rsz_1rsz_whatsapp_image_2023-02-21_at_142225_1.png")
 
     # height = 300
     # st.markdown(f"""<style>[data-testid="stSidebarNav"] {{background-image: {logo};background-repeat: no-repeat;padding-top: {height - 40}px;background-position: 20px 20px;}}</style>""",
