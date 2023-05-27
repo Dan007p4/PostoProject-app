@@ -58,7 +58,7 @@ if (authentication_status == True) & (username == 'admistrador'):
             menu_icon="border-width"
         )
     st.sidebar.image(
-        "WhatsApp Image 2023-02-21 at 14.22.25 (1).jpeg", use_column_width=True)
+        "WhatsApp Image 2023-02-21 at 14.22.25 (1).png", use_column_width=True)
 
     # logo = st.image("rsz_1rsz_whatsapp_image_2023-02-21_at_142225_1.png")
 
