@@ -352,7 +352,7 @@ if (authentication_status == True) & (username == 'admistrador'):
         columns = c.fetchall()
         dados4 = st.file_uploader("Tabela", type=["xlsx"])
 
-        if (dados4 != None) & (selection_type == "TIPO_POSTO_PADRAO"):
+        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
             dados4 = pd.read_excel(
                 dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
             dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
