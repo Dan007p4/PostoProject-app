@@ -9,14 +9,17 @@ from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-st.set_page_config(page_icon="🏥",page_title="Gerenciador de dados")
+import unidecode
+st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
 connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
     user=st.secrets["db_username"],
     passwd=st.secrets["db_password"],
+    # host="aws.connect.psdb.cloud",
+    # user="12jdq52t7tmudf8y0bp7",
+    # passwd="pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2",
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
     # ssl={
@@ -47,6 +50,17 @@ authenticator = stauth.Authenticate(
 name, authentication_status, username = authenticator.login('Login', 'main')
 
 ##CRIANDO MENU##
+
+
+def Clean_Names(name):
+    name = unidecode.unidecode(name)
+    name = name.replace(" ", '_')
+    name = name.replace("/", '_')
+    name = name.replace(".", '')
+
+    return name
+
+
 if (authentication_status == True) & (username == 'admistrador'):
     authenticator.logout('Logout', 'main')
     with st.sidebar:
@@ -186,17 +200,18 @@ if (authentication_status == True) & (username == 'admistrador'):
 
             if create:
                 create_command = "CREATE TABLE " + \
-                    str(st.session_state.tableName)+" ("
+                    Clean_Names(str(st.session_state.tableName))+" ("
 
                 for i in range(0, int(len(st.session_state.list_columnsN))):
                     if list_columnsN[i] == list_columnsN[-1]:
                         create_command = create_command + \
-                            str(list_columnsN[i])+" " + \
-                            str(list_columnsT[i])+");"
+                            Clean_Names(str(list_columnsN[i]))+" " + \
+                            Clean_Names(str(list_columnsT[i]))+");"
                     else:
                         create_command = create_command + \
-                            str(list_columnsN[i]) + " " + \
-                            str(list_columnsT[i])+","
+                            Clean_Names(str(list_columnsN[i])) + " " + \
+                            Clean_Names(str(list_columnsT[i]))+","
+                st.write(create_command)
                 st.write("Criado com sucesso!")
                 c.execute(create_command)
                 count = -1
@@ -256,7 +271,8 @@ if (authentication_status == True) & (username == 'admistrador'):
 
             for i in tables:
                 value = i[2]
-                list_tables.append(value)
+                if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                    list_tables.append(value)
 
         list_tablesofc = st.selectbox('Escolha as tabelas a serem analisadas',
                                       list_tables)
@@ -318,7 +334,7 @@ if (authentication_status == True) & (username == 'admistrador'):
         tables = c.fetchall()
         for i in tables:
             value = i[2]
-            if ('TIPO' in value) | ('tipo' in value):
+            if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
                 list_tables.append(value)
 
         selection_type = st.selectbox("Selecione o tipo da tabela",
@@ -343,6 +359,8 @@ if (authentication_status == True) & (username == 'admistrador'):
             dados4 = dados4.drop(5, axis=0)
             dados4 = dados4.reset_index()
             dados4 = dados4.drop('index', axis=1)
+            for i in dados4.columns:
+                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
 
             number_columns_verify = []
             for i in dados4.columns:
@@ -359,21 +377,30 @@ if (authentication_status == True) & (username == 'admistrador'):
 
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
+                date = st.text_input("Data do envio da tabela")
+                nameFinal = name+date+str(selection_type)
+
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-
-                dados4.to_sql(name, con=engine,
-                              if_exists='replace', index=False)
+                send_table = st.button("Enviar Tabela")
+                if send_table:
+                    dados4.to_sql(nameFinal, con=engine,
+                                  if_exists='replace', index=False)
+                    st.write("Tabela enviada com sucesso!")
             else:
                 st.warning("Tipo não compatível")
 
         elif (dados4 != None):
 
+            for i in dados4.columns:
+                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+
             dados4 = pd.read_excel(dados4)
+
             number_columns_verify = []
             for i in dados4.columns:
                 for x in columns:
@@ -389,17 +416,19 @@ if (authentication_status == True) & (username == 'admistrador'):
 
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
-                name = st.text_input("Nome da unidade")
+                date = st.text_input("Data do envio da tabela")
+                nameFinal = name+date+str(selection_type)
 
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-
-                dados4.to_sql(name, con=engine,
-                              if_exists='replace', index=False)
+                send_table = st.button("Enviar Tabela")
+                if send_table:
+                    dados4.to_sql(nameFinal, con=engine,
+                                  if_exists='replace', index=False)
             else:
                 st.error("Tipo não compatível")
 
@@ -428,7 +457,8 @@ elif (authentication_status == True) & (username == 'usuario'):
         tables = c.fetchall()
         for i in tables:
             value = i[2]
-            if ('TIPO' in value) | ('tipo' in value):
+            if(('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
+
                 list_tables.append(value)
 
         selection_type = st.selectbox("Selecione o tipo da tabela",
@@ -453,6 +483,8 @@ elif (authentication_status == True) & (username == 'usuario'):
             dados4 = dados4.drop(5, axis=0)
             dados4 = dados4.reset_index()
             dados4 = dados4.drop('index', axis=1)
+            for i in dados4.columns:
+                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
 
             number_columns_verify = []
             for i in dados4.columns:
@@ -469,21 +501,30 @@ elif (authentication_status == True) & (username == 'usuario'):
 
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
+                date = st.text_input("Data do envio da tabela")
+                nameFinal = name+date+str(selection_type)
+
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-
-                dados4.to_sql(name, con=engine,
-                              if_exists='replace', index=False)
+                send_table = st.button("Enviar Tabela")
+                if send_table:
+                    dados4.to_sql(nameFinal, con=engine,
+                                  if_exists='replace', index=False)
+                    st.write("Tabela enviada com sucesso!")
             else:
                 st.warning("Tipo não compatível")
 
         elif (dados4 != None):
 
+            for i in dados4.columns:
+                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+
             dados4 = pd.read_excel(dados4)
+
             number_columns_verify = []
             for i in dados4.columns:
                 for x in columns:
@@ -499,17 +540,19 @@ elif (authentication_status == True) & (username == 'usuario'):
 
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
-                name = st.text_input("Nome da unidade")
+                date = st.text_input("Data do envio da tabela")
+                nameFinal = name+date+str(selection_type)
 
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://uavf6qoz5z5ocrlx82yl:pscale_pw_wnmjafutFrQdmBXKSW0ICMtfwJb3HkKaw5hCUkixRTs@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-
-                dados4.to_sql(name, con=engine,
-                              if_exists='replace', index=False)
+                send_table = st.button("Enviar Tabela")
+                if send_table:
+                    dados4.to_sql(nameFinal, con=engine,
+                                  if_exists='replace', index=False)
             else:
                 st.error("Tipo não compatível")
 elif authentication_status == False:
