@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 import seaborn as sns
 import matplotlib.pyplot as plt
 import unidecode
+import openpyxl
 st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
