@@ -383,7 +383,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://pd5bhw5jwh7su20t2efd:pscale_pw_QrHYKWmI0CcD2p6EdZuKuKN8lIg5iqyAbIj34M5sWqp@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
                 send_table = st.button("Enviar Tabela")
@@ -422,7 +422,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
                 send_table = st.button("Enviar Tabela")
@@ -546,7 +546,7 @@ elif (authentication_status == True) & (username == 'usuario'):
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://12jdq52t7tmudf8y0bp7:pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
                 send_table = st.button("Enviar Tabela")
