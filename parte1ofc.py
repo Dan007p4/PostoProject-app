@@ -381,7 +381,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                 date = st.text_input("Data do envio da tabela")
                 nameFinal = name+date+str(selection_type)
 
-                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+                ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
                     'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
