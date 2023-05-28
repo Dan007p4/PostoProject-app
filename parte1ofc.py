@@ -384,7 +384,7 @@ if (authentication_status == True) & (username == 'admistrador'):
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
-                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                 # engine = create_engine(
                 #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
                 send_table = st.button("Enviar Tabela")
