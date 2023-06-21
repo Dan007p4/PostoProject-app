@@ -18,9 +18,8 @@ connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
     user=st.secrets["db_username"],
     passwd=st.secrets["db_password"],
-    # host="aws.connect.psdb.cloud",
-    # user="12jdq52t7tmudf8y0bp7",
-    # passwd="pscale_pw_cLEVkrzsQJvkFZQrswW7a4xaKLuDtu3Vx6e7hRqg2j2",
+    # user="73hgs0fxdq6mu77p7cen",
+    # passwd="pscale_pw_fddksyae8bWAZzBBey4eFdo0T4mS7fl8VVN7CZS8Mtt",
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
     # ssl={
@@ -62,7 +61,7 @@ def Clean_Names(name):
     return name
 
 
-if (authentication_status == True) & (username == 'admistrador'):
+if (authentication_status == True) & (username == 'administrador'):
     authenticator.logout('Logout', 'main')
     with st.sidebar:
 
@@ -83,9 +82,78 @@ if (authentication_status == True) & (username == 'admistrador'):
     #             )
 
     if selected == "Gerenciador de dados":
+
         st.session_state.new_form2 = 0
         st.divider()
         st.title("Gerenciador de dados")
+
+        c.execute(
+            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+        list_tables = []
+
+        tables = c.fetchall()
+
+        for i in tables:
+            value = i[2]
+            if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                list_tables.append(value)
+        genre = st.radio(
+            "Selecione o tipo de verificação",
+            ('Comparar tabelas', 'Verificar nulos'))
+
+        if genre == 'Comparar tabelas':
+
+            list_tablesofc = st.selectbox('Escolha a primeira tabela',
+                                          list_tables)
+            if (list_tablesofc != None):
+                data = pd.read_sql(
+                    "SELECT * FROM "+list_tablesofc, con=connection)
+                st.dataframe(data)
+
+            list_tablesofc2 = st.selectbox('Escolha a segunda tabela',
+                                           list_tables)
+            if (list_tablesofc2 != None):
+                data2 = pd.read_sql(
+                    "SELECT * FROM "+list_tablesofc2, con=connection)
+                st.dataframe(data2)
+
+            listTT = list(set(data2['PACIENTE']) - set(data['PACIENTE']))
+            if len(listTT) > 0:
+                st.warning(str(len(listTT))+" novos pacientes")
+
+            listdif = []
+            for i in data['PACIENTE'].values:
+                print(i)
+                if i in data2['PACIENTE'].values:
+                    print(i)
+                    listdif.append(i)
+
+            listdif = set(listdif)
+
+            for i in listdif:
+                if data[data['PACIENTE'] == i]['STATUS'].values[0] != data2[data2['PACIENTE'] == i]['STATUS'].values[0]:
+                    st.warning(str(data2[data2['PACIENTE'] == i]
+                               ['PACIENTE'].values) + " mudou seu status")
+
+        if genre == 'Verificar nulos':
+
+            list_tablesofc = st.selectbox('Escolha a primeira tabela',
+                                          list_tables)
+            if (list_tablesofc != None):
+                data = pd.read_sql(
+                    "SELECT * FROM "+list_tablesofc, con=connection)
+
+                data = data.drop(
+                    ["DATA_DE_ENCERRAMENTO", "DURACAO_DO_TTO"], axis=1)
+                data = data.loc[data.isnull().any(axis=1)]
+                st.dataframe(data)
+                if data.shape[0] > 0:
+                    st.warning("Valor nulo detectado")
+
+        # func_chart = st.selectbox('Escolha a função do grafico',
+        #                           list_chartfunc)
+
+        st.session_state.new_form2 = 0
 
     if selected == "Manipulador de dados":
 
@@ -96,6 +164,15 @@ if (authentication_status == True) & (username == 'admistrador'):
         if 'new_form2' not in st.session_state:
             st.session_state['new_form2'] = 0
 
+        if 'new_form3' not in st.session_state:
+            st.session_state['new_form3'] = " "
+
+        if 'new_form4' not in st.session_state:
+            st.session_state['new_form4'] = " "
+
+        if 'new_form5' not in st.session_state:
+            st.session_state['new_form5'] = " "
+
         if 'columns_number' not in st.session_state:
             st.session_state['columns_number'] = 0
 
@@ -104,6 +181,15 @@ if (authentication_status == True) & (username == 'admistrador'):
 
         if 'list_tablesofc' not in st.session_state:
             st.session_state['list_tablesofc'] = list_tablesofc = []
+
+        if 'list_tablesdel' not in st.session_state:
+            st.session_state['list_tablesdel'] = []
+
+        if 'list_tablesdel2' not in st.session_state:
+            st.session_state['list_tablesdel2'] = []
+
+        if 'list_tablesalter' not in st.session_state:
+            st.session_state['list_tablesalter'] = []
 
         if 'datau' not in st.session_state:
             st.session_state['datau'] = lista_datau = []
@@ -117,6 +203,15 @@ if (authentication_status == True) & (username == 'admistrador'):
 
         if st.session_state.list_tablesofc != []:
             st.session_state.new_form2 = 1
+
+        if st.session_state.list_tablesdel != []:
+            st.session_state.new_form3 = st.session_state.list_tablesdel[0]
+
+        if st.session_state.list_tablesdel2 != []:
+            st.session_state.new_form5 = st.session_state.list_tablesdel2[0]
+
+        if st.session_state.list_tablesalter != []:
+            st.session_state.new_form4 = st.session_state.list_tablesalter[0]
 
         if st.session_state.new_form2 > 0:
 
@@ -212,11 +307,131 @@ if (authentication_status == True) & (username == 'admistrador'):
                         create_command = create_command + \
                             Clean_Names(str(list_columnsN[i])) + " " + \
                             Clean_Names(str(list_columnsT[i]))+","
-                st.write(create_command)
-                st.write("Criado com sucesso!")
+                st.write(":green[TIPO CRIADO COM SUCESSO!]")
                 c.execute(create_command)
+                st.button("Continuar")
                 count = -1
                 st.session_state.new_form = 0
+
+        elif st.session_state.new_form3 != " ":
+
+            st.subheader("Você tem certeza que quer deletar o tipo de tabela " +
+                         st.session_state.new_form3+"?")
+
+            comfirmation = st.button("Sim, quero deletar")
+
+            if comfirmation:
+                c.execute("DROP TABLE "+st.session_state.new_form3)
+                st.write(":green[TIPO DE TABELA DELETADO COM SUCESSO!]")
+                st.session_state.new_form3 = " "
+                st.button("Continuar")
+
+            nop = st.button("Não")
+            if nop:
+                st.session_state.new_form3 = " "
+
+            st.warning(
+                "Cuidado ao concordar a tabela sera deletada imediatamente")
+
+        elif st.session_state.new_form4 != " ":
+            count = -1
+            selec = st.radio("Selecione o tipo de alteração",
+                             ('Renomear', 'Alterar Colunas'))
+
+            if selec == 'Alterar Colunas':
+                st.subheader("Selecione as colunas que você deseja alterar da tabela " +
+                             st.session_state.new_form4)
+                list_features = []
+                c.execute(
+                    "SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '" + st.session_state.new_form4+"';")
+                columns = c.fetchall()
+                for i in columns:
+                    value = i[0]
+                    list_features.append(value)
+                type_columns = st.multiselect('Escolha as colunas a serem alteradas',
+                                              list_features)
+
+                st.session_state['list_columnsT'] = list_columnsT = []
+                st.session_state['list_columnsN'] = list_columnsN = []
+
+                for i in range(0, len(type_columns)):
+                    st.session_state.list_columnsN.append(str(type_columns[i]))
+                    st.session_state.list_columnsT.append(str(type_columns[i]))
+
+                for i in st.session_state.list_columnsN:
+                    count = count+1
+                    count_str = i
+                    list_columnsN[count] = st.text_input(
+                        "Insira o novo nome da coluna "+str(count_str))
+
+                    list_columnsT[count] = st.selectbox(
+                        "Selecione o novo tipo da coluna "+str(count_str), ('Numerico', 'Categorico', 'Data'))
+
+                    countT = -1
+                    for i in list_columnsT:
+                        countT = countT + 1
+                        if i == 'Numerico':
+                            list_columnsT[countT] = "int"
+                        if i == 'Categorico':
+                            list_columnsT[countT] = "varchar(150)"
+                        if i == 'Data':
+                            list_columnsT[countT] = "date"
+
+                comfirmation = st.button("Atualizar")
+
+                if comfirmation:
+                    for i in range(0, len(list_columnsN)):
+
+                        c.execute("ALTER TABLE " +
+                                  st.session_state.new_form4+" MODIFY COLUMN "+type_columns[i]+" "+list_columnsT[i])
+
+                        c.execute("ALTER TABLE " +
+                                  st.session_state.new_form4+" RENAME COLUMN "+type_columns[i]+" TO "+list_columnsN[i])
+
+                    st.write(":green[TABELA ATUALIZADA COM SUCESSO!]")
+                    st.session_state.new_form4 = " "
+
+                    st.button("Continuar")
+                nop = st.button("Não")
+                if nop:
+                    st.session_state.new_form4 = " "
+
+            if selec == 'Renomear':
+                st.subheader("Digite como você deseja renomear a tabela " +
+                             st.session_state.new_form4)
+                new_name = st.text_input("Digite o novo nome")
+                ren = st.button("Renomear")
+
+                if ren:
+                    c.execute("RENAME TABLE " +
+                              st.session_state.new_form4+"TO "+new_name)
+                    st.write(":green[TABELA RENOMEADA COM SUCESSO!]")
+                    st.session_state.new_form4 = " "
+                    st.button("Continuar")
+
+                nop = st.button("Não")
+                if nop:
+                    st.session_state.new_form4 = " "
+
+        elif st.session_state.new_form5 != " ":
+
+            st.subheader("Você tem certeza que quer deletar a tabela " +
+                         st.session_state.new_form5+"?")
+
+            comfirmation = st.button("Sim, quero deletar")
+
+            if comfirmation:
+                c.execute("DROP TABLE "+st.session_state.new_form5)
+                st.write(":green[TABELA DELETADA COM SUCESSO!]")
+                st.session_state.new_form5 = " "
+                st.button("Continuar")
+
+            nop = st.button("Não")
+            if nop:
+                st.session_state.new_form5 = " "
+
+            st.warning(
+                "Cuidado ao concordar a tabela sera deletada imediatamente")
 
         ##SEGUNDA TELA DA ABA##
         else:
@@ -226,12 +441,13 @@ if (authentication_status == True) & (username == 'admistrador'):
                 with st.form(key='concat_columns'):
                     c.execute(
                         "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
-                    list_tables = []
 
+                    list_tables = []
                     tables = c.fetchall()
                     for i in tables:
                         value = i[2]
-                        list_tables.append(value)
+                        if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                            list_tables.append(value)
 
                     list_tablesofc = st.multiselect('Escolha as tabelas a serem concatenadas',
                                                     list_tables, key='list_tablesofc')
@@ -254,6 +470,64 @@ if (authentication_status == True) & (username == 'admistrador'):
 
                         submitted = st.form_submit_button(label="Enviar")
                     st.button("Cancelar")
+            ##ALTERANDO TIPO DE TABELA##
+            alter_table = st.button("Alterar tipo de tabela")
+            if alter_table:
+                with st.form(key='alter_columns'):
+                    c.execute(
+                        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+
+                    list_tables = []
+                    tables = c.fetchall()
+                    for i in tables:
+                        value = i[2]
+                        if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
+                            list_tables.append(value)
+
+                    list_tablesdel = st.multiselect('Escolha a tabela a ser deletada',
+                                                    list_tables, key='list_tablesalter', max_selections=1)
+
+                    submitted = st.form_submit_button(label="Alterar")
+                st.button("Cancelar")
+            ##DELETANDO TIPO DE TABELA##
+            delete_table = st.button("Deletar tipo de tabela")
+            if delete_table:
+                with st.form(key='delete_columns'):
+                    c.execute(
+                        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+
+                    list_tables = []
+                    tables = c.fetchall()
+                    for i in tables:
+                        value = i[2]
+                        if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
+                            list_tables.append(value)
+
+                    list_tablesdel = st.multiselect('Escolha a tipo de tabela a ser deletada',
+                                                    list_tables, key='list_tablesdel', max_selections=1)
+
+                    submitted = st.form_submit_button(label="Deletar")
+                st.button("Cancelar")
+
+            ##DELETANDO TABELA##
+            delete_table2 = st.button("Deletar tabela")
+            if delete_table2:
+                with st.form(key='delete_columns2'):
+                    c.execute(
+                        "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+
+                    list_tables = []
+                    tables = c.fetchall()
+                    for i in tables:
+                        value = i[2]
+                        if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                            list_tables.append(value)
+
+                    list_tablesdel = st.multiselect('Escolha a tabela a ser deletada',
+                                                    list_tables, key='list_tablesdel2', max_selections=1)
+
+                    submitted = st.form_submit_button(label="Deletar")
+                st.button("Cancelar")
 
     if selected == "Analise de dados":
         st.divider()
@@ -380,7 +654,8 @@ if (authentication_status == True) & (username == 'admistrador'):
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
                 nameFinal = name+date+str(selection_type)
-
+                st.warning(
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
                 ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
 
                 engine = create_engine(
@@ -396,11 +671,9 @@ if (authentication_status == True) & (username == 'admistrador'):
                 st.warning("Tipo não compatível")
 
         elif (dados4 != None):
-
+            dados4 = pd.read_excel(dados4)
             for i in dados4.columns:
                 dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
-
-            dados4 = pd.read_excel(dados4)
 
             number_columns_verify = []
             for i in dados4.columns:
@@ -418,6 +691,8 @@ if (authentication_status == True) & (username == 'admistrador'):
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
+                st.warning(
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
                 nameFinal = name+date+str(selection_type)
 
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
