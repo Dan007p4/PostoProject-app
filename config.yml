@@ -1,11 +1,11 @@
 credentials:
   usernames:
-    administrador:
-      name: Administrador
-      password: $2b$12$8Fju1B.xoLuRKraWUIfhAuYVCUli.5bX2rkUvK3IvPSfbq8CHlCzq # To be replaced with hashed password
-    usuario:
-      name: Usuarios
-      password: $2b$12$ProBzBuz.NZSsRvr4AARKe.yKVMUp455RaWmpJxvYQPKGOu0XAB.O # To be replaced with hashed password
+    comissaoferidas:
+      name: Comissaoferidas
+      password: $2b$12$.C5TSU0fzA1Ab8/9/YrlCecJWngJIG7Kyvw4gdvCuRm2OlAvJzMYy # To be replaced with hashed password
+    coberturasespeciais:
+      name: Coberturasespeciais
+      password: $2b$12$zjV9puaw34dfNhl0kBDAhuzWGqqDOlY0KjM..A0E6KYgxlRA26jSG # To be replaced with hashed password
 cookie:
   expiry_days: 30
   key: random_signature_key # Must be string
