@@ -789,10 +789,10 @@ elif (authentication_status == True) & (username == 'coberturasespeciais'):
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
                 st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
                 st.warning(
                     "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                if ((name == "") or ('/' in date) or ('-' in date) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                if ((name == "") or ('/' in date) or ('-' in date) or ('?' in name)  or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or  ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or  ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or  ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
                     st.write(
                         ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
                 else:
@@ -802,7 +802,7 @@ elif (authentication_status == True) & (username == 'coberturasespeciais'):
                     ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
 
                     engine = create_engine(
-                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"], connect_args=ssl_args)
                     # engine = create_engine(
                     #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
                     send_table = st.button("Enviar Tabela")
