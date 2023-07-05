@@ -18,6 +18,7 @@ connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
     user=st.secrets["db_username"],
     passwd=st.secrets["db_password"],
+
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
     # ssl={
@@ -51,6 +52,7 @@ name, authentication_status, username = authenticator.login('Login', 'main')
 
 
 def Clean_Names(name):
+    name = str(name)
     name = unidecode.unidecode(name)
     name = name.replace(" ", '_')
     name = name.replace("/", '_')
@@ -59,7 +61,7 @@ def Clean_Names(name):
     return name
 
 
-if (authentication_status == True) & (username == 'administrador'):
+if (authentication_status == True) & (username == 'comissaoferidas'):
     authenticator.logout('Logout', 'main')
     with st.sidebar:
 
@@ -399,10 +401,13 @@ if (authentication_status == True) & (username == 'administrador'):
                              st.session_state.new_form4)
                 new_name = st.text_input("Digite o novo nome")
                 ren = st.button("Renomear")
+                st.write("RENAME TABLE " +
+                         st.session_state.new_form4+" TO "+new_name)
 
                 if ren:
+                    st.write()
                     c.execute("RENAME TABLE " +
-                              st.session_state.new_form4+"TO "+new_name)
+                              st.session_state.new_form4+" TO "+new_name)
                     st.write(":green[TABELA RENOMEADA COM SUCESSO!]")
                     st.session_state.new_form4 = " "
                     st.button("Continuar")
@@ -624,7 +629,7 @@ if (authentication_status == True) & (username == 'administrador'):
         columns = c.fetchall()
         dados4 = st.file_uploader("Tabela", type=["xlsx"])
 
-        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAOO_TIPO"):
+        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
             dados4 = pd.read_excel(
                 dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
             dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
@@ -651,20 +656,28 @@ if (authentication_status == True) & (username == 'administrador'):
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
-                nameFinal = name+date+str(selection_type)
                 st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
-                ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
+                st.warning(
+                    "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
+                if ((name == "") or ('/' in date) or ('-' in date) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                    st.write(
+                        ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                else:
 
-                engine = create_engine(
-                    'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                # engine = create_engine(
-                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-                send_table = st.button("Enviar Tabela")
-                if send_table:
-                    dados4.to_sql(nameFinal, con=engine,
-                                  if_exists='replace', index=False)
-                    st.write("Tabela enviada com sucesso!")
+                    nameFinal = name+date+str(selection_type)
+
+                    ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+
+                    engine = create_engine(
+                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"], connect_args=ssl_args)
+                    # engine = create_engine(
+                    #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                    send_table = st.button("Enviar Tabela")
+                    if send_table:
+                        dados4.to_sql(nameFinal, con=engine,
+                                      if_exists='replace', index=False)
+                        st.write("Tabela enviada com sucesso!")
             else:
                 st.warning("Tipo não compatível")
 
@@ -707,7 +720,7 @@ if (authentication_status == True) & (username == 'administrador'):
                 st.error("Tipo não compatível")
 
 
-elif (authentication_status == True) & (username == 'usuario'):
+elif (authentication_status == True) & (username == 'coberturasespeciais'):
     authenticator.logout('Logout', 'main')
     with st.sidebar:
         selected = option_menu(
@@ -716,7 +729,7 @@ elif (authentication_status == True) & (username == 'usuario'):
             menu_icon="border-width"
         )
         st.sidebar.image(
-            "WhatsApp Image 2023-02-21 at 14.22.25 (1).jpeg", use_column_width=True)
+            "WhatsApp Image 2023-02-21 at 14.22.25 (1).png", use_column_width=True)
     if 'new_form2' not in st.session_state:
         st.session_state['new_form2'] = 0
 
@@ -731,8 +744,7 @@ elif (authentication_status == True) & (username == 'usuario'):
         tables = c.fetchall()
         for i in tables:
             value = i[2]
-            if(('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
-
+            if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
                 list_tables.append(value)
 
         selection_type = st.selectbox("Selecione o tipo da tabela",
@@ -749,7 +761,7 @@ elif (authentication_status == True) & (username == 'usuario'):
         columns = c.fetchall()
         dados4 = st.file_uploader("Tabela", type=["xlsx"])
 
-        if (dados4 != None) & (selection_type == "TIPO_POSTO_PADRAO"):
+        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
             dados4 = pd.read_excel(
                 dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
             dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
@@ -776,28 +788,35 @@ elif (authentication_status == True) & (username == 'usuario'):
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
-                nameFinal = name+date+str(selection_type)
+                st.warning(
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
+                st.warning(
+                    "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
+                if ((name == "") or ('/' in date) or ('-' in date) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                    st.write(
+                        ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                else:
 
-                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
+                    nameFinal = name+date+str(selection_type)
 
-                engine = create_engine(
-                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                # engine = create_engine(
-                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-                send_table = st.button("Enviar Tabela")
-                if send_table:
-                    dados4.to_sql(nameFinal, con=engine,
-                                  if_exists='replace', index=False)
-                    st.write("Tabela enviada com sucesso!")
+                    ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+
+                    engine = create_engine(
+                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                    # engine = create_engine(
+                    #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                    send_table = st.button("Enviar Tabela")
+                    if send_table:
+                        dados4.to_sql(nameFinal, con=engine,
+                                      if_exists='replace', index=False)
+                        st.write("Tabela enviada com sucesso!")
             else:
                 st.warning("Tipo não compatível")
 
         elif (dados4 != None):
-
+            dados4 = pd.read_excel(dados4)
             for i in dados4.columns:
                 dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
-
-            dados4 = pd.read_excel(dados4)
 
             number_columns_verify = []
             for i in dados4.columns:
@@ -815,6 +834,8 @@ elif (authentication_status == True) & (username == 'usuario'):
                 st.dataframe(dados4)
                 name = st.text_input("Nome da unidade")
                 date = st.text_input("Data do envio da tabela")
+                st.warning(
+                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
                 nameFinal = name+date+str(selection_type)
 
                 ssl_args = {'ssl': "cacert-2023-01-10.pem"}
