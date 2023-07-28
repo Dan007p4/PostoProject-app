@@ -2,7 +2,7 @@ credentials:
   usernames:
     comissaoferidas:
       name: Comissaoferidas
-      password: $2b$12$.C5TSU0fzA1Ab8/9/YrlCecJWngJIG7Kyvw4gdvCuRm2OlAvJzMYy # To be replaced with hashed password
+      password: $2b$12$nm53glq6wrJU3BzENOdEm.Ntw1i0CbeeIaB8H/gBmS1Co2q59RDsi # To be replaced with hashed password
     coberturasespeciais:
       name: Coberturasespeciais
       password: $2b$12$zjV9puaw34dfNhl0kBDAhuzWGqqDOlY0KjM..A0E6KYgxlRA26jSG # To be replaced with hashed password
