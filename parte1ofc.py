@@ -11,6 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import unidecode
 import openpyxl
+import datetime as dt
 st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
@@ -21,16 +22,11 @@ connection = mysql.connector.connect(
 
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
-    # ssl={
-    #     "ca": "cacert-2023-01-10.pem"
-    # }
 
 
 )
 
 
-# connection = MySQLdb.connect(
-#     host="127.0.0.1", user="root", passwd="02041224dD", db="sex")
 c = connection.cursor()
 
 ##FAZENDO TELA DE LOGIN##
@@ -47,6 +43,16 @@ authenticator = stauth.Authenticate(
 )
 
 name, authentication_status, username = authenticator.login('Login', 'main')
+
+css = '''
+<style>
+[class="css-16idsys e16nr0p34"]{visibility:hidden}
+
+
+
+</style>
+'''
+st.markdown(css, unsafe_allow_html=True)
 
 ##CRIANDO MENU##
 
@@ -74,13 +80,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
     st.sidebar.image(
         "WhatsApp Image 2023-02-21 at 14.22.25 (1).png", use_column_width=True)
 
-    # logo = st.image("rsz_1rsz_whatsapp_image_2023-02-21_at_142225_1.png")
-
-    # height = 300
-    # st.markdown(f"""<style>[data-testid="stSidebarNav"] {{background-image: {logo};background-repeat: no-repeat;padding-top: {height - 40}px;background-position: 20px 20px;}}</style>""",
-    #             unsafe_allow_html=True,
-    #             )
-
+    ##ABA GERENCIADOR DE DADOS##
     if selected == "Gerenciador de dados":
 
         st.session_state.new_form2 = 0
@@ -150,14 +150,12 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                 if data.shape[0] > 0:
                     st.warning("Valor nulo detectado")
 
-        # func_chart = st.selectbox('Escolha a função do grafico',
-        #                           list_chartfunc)
-
         st.session_state.new_form2 = 0
 
+        ##ABA MANIPULADOR DE DADOS##
     if selected == "Manipulador de dados":
 
-        ##CRIANDO VARIAVEIS DA SESSÃO DA ABA##
+        ##CRIANDO VARIAVEIS DA SESSÃO##
         if 'new_form' not in st.session_state:
             st.session_state['new_form'] = 0
 
@@ -194,7 +192,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         if 'datau' not in st.session_state:
             st.session_state['datau'] = lista_datau = []
 
-        ##PRIMEIRA TELA DA ABA##
+        ##PRIMEIRA TELA#
         st.divider()
         st.title("Manipulador de dados")
 
@@ -532,6 +530,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                     submitted = st.form_submit_button(label="Deletar")
                 st.button("Cancelar")
 
+        ##ABA ANALISE DE DADOS##
     if selected == "Analise de dados":
         st.divider()
         st.title("Analise de dados")
@@ -568,9 +567,6 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         type_chart = st.selectbox('Escolha os tipos do grafico',
                                   list_chart)
 
-        # func_chart = st.selectbox('Escolha a função do grafico',
-        #                           list_chartfunc)
-
         if (list_tablesofc != None) & (type_columns != []) & (list_tablesofc != None):
             data = pd.read_sql("SELECT * FROM "+list_tablesofc, con=connection)
             st.dataframe(data)
@@ -580,10 +576,6 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                 sns.countplot(x=data[str(type_columns[0])])
                 st.pyplot(fig)
 
-            # if type_chart == "Grafico de pizza":
-            #     sns.pieplot(x=data[str(type_columns[0])])
-            #     st.pyplot(fig)
-
             if type_chart == "Grafico de linha":
                 sns.lineplot(data=data, x=data[str(type_columns[0])],
                              y=data[str(type_columns[1])])
@@ -591,135 +583,134 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
 
             st.session_state.new_form2 = 0
 
-        # dados = st.file_uploader("Tabela", type=["xlsx"])
-        # dados = pd.read_excel(dados, sheet_name='BASE DE DADOS')
-        # dados = dados.drop([0, 1, 2, 3, 4], axis=0)
-        # dados.columns = dados.iloc[0].values
-        # dados = dados.drop(5, axis=0)
-        # dados = dados.reset_index()
-        # dados = dados.drop('index', axis=1)
-        # st.bar_chart(dados['QNT'])
-        # st.ploty_chart(dados['GENERO'])
+        ##ABA SUBIR TABELAS##
+    if ((selected == ("Subir tabelas"))):
 
-    if selected == "Subir tabelas":
-        st.session_state.new_form2 = 0
-        st.divider()
-        st.title("Insira sua tabela e as informações necessarias abaixo")
-        c.execute(
-            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
-        list_tables = []
+        if(((dt.date.today().day >= 20) & (dt.date.today().day <= 25))):
+            st.session_state.new_form2 = 0
+            st.divider()
+            st.title("Insira sua tabela e as informações necessarias abaixo")
+            c.execute(
+                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+            list_tables = []
 
-        tables = c.fetchall()
-        for i in tables:
-            value = i[2]
-            if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
-                list_tables.append(value)
+            tables = c.fetchall()
+            for i in tables:
+                value = i[2]
+                if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
+                    list_tables.append(value)
 
-        selection_type = st.selectbox("Selecione o tipo da tabela",
-                                      list_tables)
+            selection_type = st.selectbox("Selecione o tipo da tabela",
+                                          list_tables)
 
-        # c.execute(
-        #     "SELECT count(*) FROM information_schema.columns WHERE table_name ='"+selection_type + "';")
-        # number_len = c.fetchall()
+            st.subheader(
+                ":red[Clique no botão a baixo para subir a tabela ⇩]")
 
-        st.subheader(
-            ":red[Clique no botão 'Browse files'a baixo para subir a tabela ⇩]")
+            c.execute(
+                "SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
+            columns = c.fetchall()
+            css = '''
+                    <style>
+                    [data-testid="stFileUploadDropzone"] div div::before {color:green; content:"Clique aqui para subir sua tabela"}
+                    [data-testid="stFileUploadDropzone"] div div span{display:none;}
+                    [data-testid="stFileUploadDropzone"] div div::after { font-size: .8em; content:""}
+                    [data-testid="stFileUploadDropzone"] div div small{display:none;}
+                    [data-testid="stFileUploadDropzone"] button[kind="secondary"]::before {
+                    content: "Carregar tabela /  ";
+                    }
+                    [data-testid="stFileUploadDropzone"] button[kind="secondary"]{visibility: hidden;}
+                    </style>
+                    '''
 
-        c.execute("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
-        columns = c.fetchall()
-        dados4 = st.file_uploader("Tabela", type=["xlsx"])
+            st.markdown(css, unsafe_allow_html=True)
+            dados4 = st.file_uploader("Tabela", type=["xlsx"])
 
-        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
-            dados4 = pd.read_excel(
-                dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
-            dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
-            dados4.columns = dados4.iloc[0].values
-            dados4 = dados4.drop(5, axis=0)
-            dados4 = dados4.reset_index()
-            dados4 = dados4.drop('index', axis=1)
-            for i in dados4.columns:
-                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+            if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
+                dados4 = pd.read_excel(
+                    dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
+                dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
+                dados4.columns = dados4.iloc[0].values
+                dados4 = dados4.drop(5, axis=0)
+                dados4 = dados4.reset_index()
+                dados4 = dados4.drop('index', axis=1)
+                for i in dados4.columns:
+                    dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
 
-            number_columns_verify = []
-            for i in dados4.columns:
-                for x in columns:
-                    if i in x:
-                        number_columns_verify.append(x)
+                number_columns_verify = []
+                for i in dados4.columns:
+                    for x in columns:
+                        if i in x:
+                            number_columns_verify.append(x)
 
-            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+                if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
 
-                # if dados4.shape[1] != number_len:
-                #     st.write("Tipo errado")
-                # st.write(dados4.shape[1])
-                # st.write(number_len)
+                    st.dataframe(dados4)
+                    name = st.text_input("Nome da unidade")
+                    date = st.text_input("Data do envio da tabela")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
+                    if ((name == "") or (date == "") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                        st.write(
+                            ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                    else:
 
-                st.dataframe(dados4)
-                name = st.text_input("Nome da unidade")
-                date = st.text_input("Data do envio da tabela")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                if ((name == "") or (date == "")or ('/' in date) or ('-' in date) or ('?' in name)  or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or  ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or  ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or  ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or  ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or  ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
-                    st.write(
-                        ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                        nameFinal = name+date+str(selection_type)
+
+                        ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+
+                        engine = create_engine(
+                            'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                        send_table = st.button("Enviar Tabela")
+                        if send_table:
+                            dados4.to_sql(nameFinal, con=engine,
+                                          if_exists='replace', index=False)
+                            st.write("Tabela enviada com sucesso!")
                 else:
+                    st.warning("Tipo não compatível")
 
+            elif (dados4 != None):
+                dados4 = pd.read_excel(dados4)
+                for i in dados4.columns:
+                    dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+
+                number_columns_verify = []
+                for i in dados4.columns:
+                    for x in columns:
+                        if i in x:
+                            number_columns_verify.append(x)
+
+                if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+
+                    st.dataframe(dados4)
+                    name = st.text_input("Nome da unidade")
+                    date = st.text_input("Data do envio da tabela")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
                     nameFinal = name+date+str(selection_type)
 
-                    ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+                    ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                     engine = create_engine(
-                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                    # engine = create_engine(
-                    #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                        'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                     send_table = st.button("Enviar Tabela")
                     if send_table:
                         dados4.to_sql(nameFinal, con=engine,
                                       if_exists='replace', index=False)
-                        st.write("Tabela enviada com sucesso!")
-            else:
-                st.warning("Tipo não compatível")
-
-        elif (dados4 != None):
-            dados4 = pd.read_excel(dados4)
-            for i in dados4.columns:
-                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
-
-            number_columns_verify = []
-            for i in dados4.columns:
-                for x in columns:
-                    if i in x:
-                        number_columns_verify.append(x)
-
-            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
-
-                # if dados4.shape[1] != number_len:
-                #     st.write("Tipo errado")
-                # st.write(dados4.shape[1])
-                # st.write(number_len)
-
-                st.dataframe(dados4)
-                name = st.text_input("Nome da unidade")
-                date = st.text_input("Data do envio da tabela")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
-                nameFinal = name+date+str(selection_type)
-
-                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
-
-                engine = create_engine(
-                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                # engine = create_engine(
-                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-                send_table = st.button("Enviar Tabela")
-                if send_table:
-                    dados4.to_sql(nameFinal, con=engine,
-                                  if_exists='replace', index=False)
-            else:
-                st.error("Tipo não compatível")
+                else:
+                    st.error("Tipo não compatível")
+        else:
+            st.divider()
+            st.error(
+                "Acesso negado a função de subir tabelas pois esta fora da data permitida")
+            st.warning(
+                "Somente entre  os dias 20 e 25 é permitido subir tabela")
 
 
+##LOGIN USER##
+
+##CRIANDO MENU##
 elif (authentication_status == True) & (username == 'coberturasespeciais'):
     authenticator.logout('Logout', 'main')
     with st.sidebar:
@@ -733,124 +724,130 @@ elif (authentication_status == True) & (username == 'coberturasespeciais'):
     if 'new_form2' not in st.session_state:
         st.session_state['new_form2'] = 0
 
-    if selected == "Subir tabelas":
-        st.session_state.new_form2 = 0
-        st.divider()
-        st.title("Insira sua tabela e as informações necessarias abaixo")
-        c.execute(
-            "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
-        list_tables = []
+        ##ABA SUBIR TABELAS#
+    if ((selected == ("Subir tabelas"))):
 
-        tables = c.fetchall()
-        for i in tables:
-            value = i[2]
-            if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
-                list_tables.append(value)
+        if(((dt.date.today().day >= 20) & (dt.date.today().day <= 25))):
+            st.session_state.new_form2 = 0
+            st.divider()
+            st.title("Insira sua tabela e as informações necessarias abaixo")
+            c.execute(
+                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+            list_tables = []
 
-        selection_type = st.selectbox("Selecione o tipo da tabela",
-                                      list_tables)
+            tables = c.fetchall()
+            for i in tables:
+                value = i[2]
+                if (('TIPO' in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)) | (('tipo' in value) & ('1' not in value) & ('1' not in value) & ('2' not in value) and ('3' not in value) and ('4' not in value) and ('5' not in value) and ('6' not in value) and ('7' not in value) and ('8' not in value) and ('9' not in value)):
+                    list_tables.append(value)
 
-        # c.execute(
-        #     "SELECT count(*) FROM information_schema.columns WHERE table_name ='"+selection_type + "';")
-        # number_len = c.fetchall()
+            selection_type = st.selectbox("Selecione o tipo da tabela",
+                                          list_tables)
 
-        st.subheader(
-            ":red[Clique no botão 'Browse files'a baixo para subir a tabela ⇩]")
+            st.subheader(
+                ":red[Clique no botão a baixo para subir a tabela ⇩]")
 
-        c.execute("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
-        columns = c.fetchall()
-        dados4 = st.file_uploader("Tabela", type=["xlsx"])
+            c.execute(
+                "SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_schema = 'database' and table_name = '"+selection_type+"'")
+            columns = c.fetchall()
+            css = '''
+                    <style>
+                    [data-testid="stFileUploadDropzone"] div div::before {color:green; content:"Clique aqui para subir sua tabela"}
+                    [data-testid="stFileUploadDropzone"] div div span{display:none;}
+                    [data-testid="stFileUploadDropzone"] div div::after { font-size: .8em; content:""}
+                    [data-testid="stFileUploadDropzone"] div div small{display:none;}
+                    [data-testid="stFileUploadDropzone"] button[kind="secondary"]::before {
+                    content: "Carregar tabela /  ";
+                    }
+                    [data-testid="stFileUploadDropzone"] button[kind="secondary"]{visibility: hidden;}
+                    </style>
+                    '''
 
-        if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
-            dados4 = pd.read_excel(
-                dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
-            dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
-            dados4.columns = dados4.iloc[0].values
-            dados4 = dados4.drop(5, axis=0)
-            dados4 = dados4.reset_index()
-            dados4 = dados4.drop('index', axis=1)
-            for i in dados4.columns:
-                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+            st.markdown(css, unsafe_allow_html=True)
+            dados4 = st.file_uploader("Tabela", type=["xlsx"])
 
-            number_columns_verify = []
-            for i in dados4.columns:
-                for x in columns:
-                    if i in x:
-                        number_columns_verify.append(x)
+            if (dados4 != None) & (selection_type == "MAPA_MENSAL_COMISSAO_TIPO"):
+                dados4 = pd.read_excel(
+                    dados4, sheet_name='BASE DE DADOS', engine='openpyxl')
+                dados4 = dados4.drop([0, 1, 2, 3, 4], axis=0)
+                dados4.columns = dados4.iloc[0].values
+                dados4 = dados4.drop(5, axis=0)
+                dados4 = dados4.reset_index()
+                dados4 = dados4.drop('index', axis=1)
+                for i in dados4.columns:
+                    dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
 
-            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+                number_columns_verify = []
+                for i in dados4.columns:
+                    for x in columns:
+                        if i in x:
+                            number_columns_verify.append(x)
 
-                # if dados4.shape[1] != number_len:
-                #     st.write("Tipo errado")
-                # st.write(dados4.shape[1])
-                # st.write(number_len)
+                if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
 
-                st.dataframe(dados4)
-                name = st.text_input("Nome da unidade")
-                date = st.text_input("Data do envio da tabela")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                if ((name == "") or (date == "")or ('/' in date) or ('-' in date) or ('?' in name)  or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or  ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or  ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or  ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or  ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or  ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
-                    st.write(
-                        ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                    st.dataframe(dados4)
+                    name = st.text_input("Nome da unidade")
+                    date = st.text_input("Data do envio da tabela")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
+                    if ((name == "") or (date == "") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                        st.write(
+                            ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                    else:
+
+                        nameFinal = name+date+str(selection_type)
+
+                        ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+
+                        engine = create_engine(
+                            'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
+                        send_table = st.button("Enviar Tabela")
+                        if send_table:
+                            dados4.to_sql(nameFinal, con=engine,
+                                          if_exists='replace', index=False)
+                            st.write("Tabela enviada com sucesso!")
                 else:
+                    st.warning("Tipo não compatível")
 
+            elif (dados4 != None):
+                dados4 = pd.read_excel(dados4)
+                for i in dados4.columns:
+                    dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
+
+                number_columns_verify = []
+                for i in dados4.columns:
+                    for x in columns:
+                        if i in x:
+                            number_columns_verify.append(x)
+
+                if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
+
+                    st.dataframe(dados4)
+                    name = st.text_input("Nome da unidade")
+                    date = st.text_input("Data do envio da tabela")
+                    st.warning(
+                        "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
                     nameFinal = name+date+str(selection_type)
 
-                    ssl_args = {'ssl_ca': "cacert-2023-01-10.pem"}
+                    ssl_args = {'ssl': "cacert-2023-01-10.pem"}
 
                     engine = create_engine(
-                        'mysql+mysqlconnector://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                    # engine = create_engine(
-                    #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
+                        'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
                     send_table = st.button("Enviar Tabela")
                     if send_table:
                         dados4.to_sql(nameFinal, con=engine,
                                       if_exists='replace', index=False)
-                        st.write("Tabela enviada com sucesso!")
-            else:
-                st.warning("Tipo não compatível")
-
-        elif (dados4 != None):
-            dados4 = pd.read_excel(dados4)
-            for i in dados4.columns:
-                dados4 = dados4.rename({i: Clean_Names(i)}, axis=1)
-
-            number_columns_verify = []
-            for i in dados4.columns:
-                for x in columns:
-                    if i in x:
-                        number_columns_verify.append(x)
-
-            if(dados4.shape[1] == len(columns)) & (len(number_columns_verify) == dados4.shape[1]):
-
-                # if dados4.shape[1] != number_len:
-                #     st.write("Tipo errado")
-                # st.write(dados4.shape[1])
-                # st.write(number_len)
-
-                st.dataframe(dados4)
-                name = st.text_input("Nome da unidade")
-                date = st.text_input("Data do envio da tabela")
-                st.warning(
-                    "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO E SEM NUMEROS COM A PALAVRA TIPO E _ NO LUGAR DOS ESPAÇÕS")
-                nameFinal = name+date+str(selection_type)
-
-                ssl_args = {'ssl': "cacert-2023-01-10.pem"}
-
-                engine = create_engine(
-                    'mysql+mysqldb://'+st.secrets["db_username"]+':'+st.secrets["db_password"]+'@aws.connect.psdb.cloud/database', connect_args=ssl_args)
-                # engine = create_engine(
-                #     'mysql+mysqldb://root:02041224dD@127.0.0.1/sex')
-                send_table = st.button("Enviar Tabela")
-                if send_table:
-                    dados4.to_sql(nameFinal, con=engine,
-                                  if_exists='replace', index=False)
-            else:
-                st.error("Tipo não compatível")
+                else:
+                    st.error("Tipo não compatível")
+        else:
+            st.divider()
+            st.error(
+                "Acesso negado a função de subir tabelas pois esta fora da data permitida")
+            st.warning(
+                "Somente entre  os dias 20 e 25 é permitido subir tabela")
 elif authentication_status == False:
     st.error('Senha ou Usuario esta incorreto')
 elif authentication_status == None:
-    st.warning('Insira senha e usuario como solicitado')
+    st.warning('Insira respectivamente o usuario e a senha como solicitado')
