@@ -586,7 +586,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         ##ABA SUBIR TABELAS##
     if ((selected == ("Subir tabelas"))):
 
-        if(((dt.date.today().day >= 20) & (dt.date.today().day <= 25))):
+        if(((dt.date.today().day >= 1) & (dt.date.today().day <= 30))):
             st.session_state.new_form2 = 0
             st.divider()
             st.title("Insira sua tabela e as informações necessarias abaixo")
