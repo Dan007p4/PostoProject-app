@@ -703,7 +703,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         else:
             st.divider()
             st.error(
-                "Acesso negado a função de subir tabelas pois esta fora da data permitida")
+                "Acesso negado a função de subir tabelas pois esta fora da data permitidaa")
             st.warning(
                 "Somente entre  os dias 20 e 25 é permitido subir tabela")
 
