@@ -12,6 +12,10 @@ import matplotlib.pyplot as plt
 import unidecode
 import openpyxl
 import datetime as dt
+from io import BytesIO
+import xlsxwriter
+from pyxlsb import open_workbook as open_xlsb
+
 st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
@@ -44,15 +48,14 @@ authenticator = stauth.Authenticate(
 
 name, authentication_status, username = authenticator.login('Login', 'main')
 
-css = '''
-<style>
-[class="css-16idsys e16nr0p34"]{visibility:hidden}
+# css = '''
+# <style>
+# [class="css-16idsys e16nr0p34"]{visibility:hidden}
 
 
-
-</style>
-'''
-st.markdown(css, unsafe_allow_html=True)
+# </style>
+# '''
+# st.markdown(css, unsafe_allow_html=True)
 
 ##CRIANDO MENU##
 
@@ -65,6 +68,19 @@ def Clean_Names(name):
     name = name.replace(".", '')
 
     return name
+
+
+def to_excel(df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+    format1 = workbook.add_format({'num_format': '0.00'})
+    worksheet.set_column('A:A', None, format1)
+    writer.close()
+    processed_data = output.getvalue()
+    return processed_data
 
 
 if (authentication_status == True) & (username == 'comissaoferidas'):
@@ -186,6 +202,12 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         if 'list_tablesdel2' not in st.session_state:
             st.session_state['list_tablesdel2'] = []
 
+        if 'list_tablesdelAll' not in st.session_state:
+            st.session_state['list_tablesdelAll'] = 0
+
+        if 'list_tablesdownloadAll' not in st.session_state:
+            st.session_state['list_tablesdownloadAll'] = 0
+
         if 'list_tablesalter' not in st.session_state:
             st.session_state['list_tablesalter'] = []
 
@@ -225,22 +247,6 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
             conc = pd.concat(st.session_state.datau, axis=0)
             st.subheader("Tabela concatenada")
             st.dataframe(conc)
-
-            from io import BytesIO
-            import xlsxwriter
-            from pyxlsb import open_workbook as open_xlsb
-
-            def to_excel(df):
-                output = BytesIO()
-                writer = pd.ExcelWriter(output, engine='xlsxwriter')
-                df.to_excel(writer, index=False, sheet_name='Sheet1')
-                workbook = writer.book
-                worksheet = writer.sheets['Sheet1']
-                format1 = workbook.add_format({'num_format': '0.00'})
-                worksheet.set_column('A:A', None, format1)
-                writer.close()
-                processed_data = output.getvalue()
-                return processed_data
 
             st.download_button(
                 label="Fazer dowload da tabela concatenada",
@@ -434,6 +440,74 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
             st.warning(
                 "Cuidado ao concordar a tabela sera deletada imediatamente")
 
+        elif st.session_state.list_tablesdelAll == 1:
+            st.subheader("Tem certeza que quer deletar todas as tabelas?")
+            c.execute(
+                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+
+            list_tables = []
+            tables = c.fetchall()
+            for i in tables:
+                value = i[2]
+                if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                    list_tables.append(value)
+
+            confirmDeleteAll = st.button("Confirmar")
+            if confirmDeleteAll:
+                st.subheader("Isso pode demorar um pouquinho")
+                for i in list_tables:
+                    with st.spinner('Aguarde...'):
+                        c.execute("DROP TABLE "+i+";")
+                        connection.commit()
+
+                st.success(":green[TODAS TABELAS DELETADAS COM SUCESSO!]")
+
+            noDeleteAll = st.button("Cancelar")
+            if noDeleteAll:
+                st.session_state.list_tablesdelAll = 0
+                st.experimental_rerun()
+
+        elif st.session_state.list_tablesdownloadAll == 1:
+            st.subheader("Tem certeza que quer baixar todas as tabelas?")
+            c.execute(
+                "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 'database';")
+
+            list_tables = []
+            tables = c.fetchall()
+            for i in tables:
+                value = i[2]
+                if ((('tipo' in value) | ('TIPO' in value)) & (('1' in value) | ('2' in value) | ('3' in value) | ('4' in value) | ('5' in value) | ('6' in value) | ('7' in value) | ('8' in value) | ('9' in value))):
+                    list_tables.append(value)
+
+            confirmDownloadAll = st.button("Confirmar")
+            # confirmDeleteAll = True
+            if confirmDownloadAll:
+
+                st.subheader("Isso pode demorar um pouquinho")
+                zip_filename = "my_zip_file.zip"
+                import zipfile
+                with BytesIO() as buffer:
+                    with zipfile.ZipFile(buffer, "w") as zip:
+                        for i in list_tables:
+                            with st.spinner('Aguarde...'):
+                                data = pd.read_sql(
+                                    "SELECT * FROM " + i, con=connection)
+                            excel_data = to_excel(data)
+                            zip.writestr(i + ".xlsx", excel_data)
+                    buffer.seek(0)
+
+                    down = st.download_button(
+                        label="Fazer dowload da tabela concatenada",
+                        data=buffer,
+                        file_name="todasTabelas.zip"
+                    )
+                    st.success(":green[TODAS TABELAS BAIXADAS COM SUCESSO!]")
+
+            noDownloadAll = st.button("Cancelar")
+            if noDownloadAll:
+                st.session_state.list_tablesdownloadAll = 0
+                st.experimental_rerun()
+
         ##SEGUNDA TELA DA ABA##
         else:
             ##CONCATENAÇÃO DE TABELAS##
@@ -529,6 +603,17 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
 
                     submitted = st.form_submit_button(label="Deletar")
                 st.button("Cancelar")
+            ##DELETANDO TODAS TABELAS##
+            delete_Alltable = st.button("Deletar todas tabelas")
+            if delete_Alltable:
+                st.session_state.list_tablesdelAll = 1
+                st.experimental_rerun()
+
+            ##BAIXANDO TODAS TABELAS##
+            download_Alltable = st.button("Baixar todas tabelas")
+            if download_Alltable:
+                st.session_state.list_tablesdownloadAll = 1
+                st.experimental_rerun()
 
         ##ABA ANALISE DE DADOS##
     if selected == "Analise de dados":
@@ -651,7 +736,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                         "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
                     st.warning(
                         "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                    if ((name == "") or (date == "") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                    if ((name == " ") or (date == " ") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
                         st.write(
                             ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
                     else:
@@ -792,7 +877,7 @@ elif (authentication_status == True) & (username == 'coberturasespeciais'):
                         "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
                     st.warning(
                         "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                    if ((name == "") or (date == "") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
+                    if ((name == " ") or (date == " ") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
                         st.write(
                             ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
                     else:
