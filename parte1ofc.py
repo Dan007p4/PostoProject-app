@@ -15,7 +15,6 @@ import datetime as dt
 from io import BytesIO
 import xlsxwriter
 from pyxlsb import open_workbook as open_xlsb
-
 st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
@@ -69,6 +68,27 @@ def Clean_Names(name):
 
     return name
 
+def NotSymbolsDate(string):
+    caracteres_permitidos = ["0123456789_"]
+    for caractere in string:
+        if caractere not in caracteres_permitidos[0]:
+            return False
+    return True
+
+def NotSymbols(string):
+    symbols_and_accents = [
+        "a", "A", "b", "B", "c", "C", "d", "D", "e", "E",
+        "f", "F", "g", "G", "h", "H", "i", "I", "j", "J",
+        "k", "K", "l", "L", "m", "M", "n", "N", "o", "O",
+        "p", "P", "q", "Q", "r", "R", "s", "S", "t", "T",
+        "u", "U", "v", "V", "w", "W", "x", "X", "y", "Y",
+        "z", "Z", "_"
+    ]
+
+    for i in string:
+        if i not in symbols_and_accents:
+            return False
+    return True
 
 def to_excel(df):
     output = BytesIO()
@@ -82,6 +102,14 @@ def to_excel(df):
     processed_data = output.getvalue()
     return processed_data
 
+hide_st_style = """
+             <style>
+             #MainMenu {visibility: hidden;}
+             footer {visibility: hidden;}
+             header {visibility: hidden;}
+             </style>
+             """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 if (authentication_status == True) & (username == 'comissaoferidas'):
     authenticator.logout('Logout', 'main')
@@ -736,9 +764,9 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                         "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
                     st.warning(
                         "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                    if ((name == " ") or (date == " ") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
-                        st.write(
-                            ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                    if ((not NotSymbols(name))| (not NotSymbolsDate(date))):
+                        st.error(
+                            "DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR")
                     else:
 
                         nameFinal = name+date+str(selection_type)
@@ -788,7 +816,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
         else:
             st.divider()
             st.error(
-                "Acesso negado a função de subir tabelas pois esta fora da data permitidaa")
+                "Acesso negado a função de subir tabelas pois esta fora da data permitida")
             st.warning(
                 "Somente entre  os dias 20 e 25 é permitido subir tabela")
 
@@ -877,9 +905,9 @@ elif (authentication_status == True) & (username == 'coberturasespeciais'):
                         "LEMBRE-SE DE INSERIR O NOME DA TABELA TODO EM MAIUSCULO,SEM DIGITOS,SEM ACENTUAÇÃO E COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: POSTO_UM  ")
                     st.warning(
                         "LEMBRE-SE DE INSERIR A DATA DA TABELA COM '_' NO LUGAR DOS ESPAÇOS, EXEMPLO: 24_06_2023  ")
-                    if ((name == " ") or (date == " ") or ('/' in date) or ('-' in date) or ('?' in name) or ('á' in name) or ('à' in name) or ('â' in name) or ('ã' in name) or ('ä' in name) or ('é' in name) or ('è' in name) or ('ê' in name) or ('ë' in name) or ('í' in name) or ('ì' in name) or ('î' in name) or ('ï' in name) or ('ó' in name) or ('ò' in name) or ('ô' in name) or ('õ' in name) or ('ö' in name) or ('ú' in name) or ('ù' in name) or ('û' in name) or ('ü' in name) or ('Á' in name) or ('À' in name) or ('Â' in name) or ('Ã' in name) or ('Ä' in name) or ('É' in name) or ('È' in name) or ('Ê' in name) or ('Ë' in name) or ('Í' in name) or ('Ì' in name) or ('Î' in name) or ('Ï' in name) or ('Ó' in name) or ('Ò' in name) or ('Ô' in name) or ('Õ' in name) or ('Ö' in name) or ('Ú' in name) or ('Ù' in name) or ('Û' in name) or ('Ü' in name) or (' ' in name or (('1' in name) | ('2' in name) | ('3' in name) | ('4' in name) | ('5' in name) | ('6' in name) | ('7' in name) | ('8' in name) | ('9' in name)))):
-                        st.write(
-                            ":red[DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR]")
+                    if ((not NotSymbols(name))| (not NotSymbolsDate(date))):
+                        st.error(
+                            "DATA OU NOME COM CONFIGURAÇÃO ERRADA MUDE PARA PROSSEGUIR")
                     else:
 
                         nameFinal = name+date+str(selection_type)
