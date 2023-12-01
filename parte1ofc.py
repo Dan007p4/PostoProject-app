@@ -523,6 +523,18 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                                     "SELECT * FROM " + i, con=connection)
                             excel_data = to_excel(data)
                             zip.writestr(i + ".xlsx", excel_data)
+                            connection.close()
+                            connection = mysql.connector.connect(
+                                host="aws.connect.psdb.cloud",
+                                user=st.secrets["db_username"],
+                                passwd=st.secrets["db_password"],
+                                connection_timeout=120,
+                            
+                                db="database",
+                                ssl_ca="cacert-2023-01-10.pem"
+                            
+                            
+                            )
                     buffer.seek(0)
 
                     down = st.download_button(
