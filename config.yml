@@ -7,7 +7,7 @@ credentials:
       name: Coberturasespeciais
       password: $2b$12$zjV9puaw34dfNhl0kBDAhuzWGqqDOlY0KjM..A0E6KYgxlRA26jSG # To be replaced with hashed password
 cookie:
-  expiry_days: 30
+  expiry_days: 10
   key: random_signature_key # Must be string
   name: random_cookie_name
 preauthorized:
