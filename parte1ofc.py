@@ -22,6 +22,7 @@ connection = mysql.connector.connect(
     host="aws.connect.psdb.cloud",
     user=st.secrets["db_username"],
     passwd=st.secrets["db_password"],
+    connection_timeout=120,
 
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
