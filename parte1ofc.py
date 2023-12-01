@@ -538,7 +538,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                     buffer.seek(0)
 
                     down = st.download_button(
-                        label="Fazer dowload da tabela concatenada",
+                        label="Fazer dowload de todas as tabelas",
                         data=buffer,
                         file_name="todasTabelas.zip"
                     )
