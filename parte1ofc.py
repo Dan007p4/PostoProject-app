@@ -20,8 +20,8 @@ st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 
 connection = mysql.connector.connect(
     host="3.15.168.131",
-    user= st.secrets["db_username"]
-    passwd= st.secrets["db_password"]
+    user= st.secrets["db_username"],
+    passwd= st.secrets["db_password"],
 
     db="database",
     ssl_ca="cacert-2023-01-10.pem"
