@@ -522,7 +522,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                             with st.spinner('Aguarde...'):
                                 #data = pd.read_sql(
                                  #   "SELECT * FROM " + i, con=connection)
-                            excel_data = to_excel(data)
+                            #excel_data = to_excel(data)
                             zip.writestr(i + ".xlsx", excel_data)
                             #connection.close()
                            # connection = mysql.connector.connect(
