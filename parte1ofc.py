@@ -18,16 +18,18 @@ from pyxlsb import open_workbook as open_xlsb
 st.set_page_config(page_icon="🏥", page_title="Gerenciador de dados")
 ##FAZENDO CONEXÃO COM O DB##
 
-connection = mysql.connector.connect(
-    host="3.15.168.131",
-    user= st.secrets["db_username"],
-    passwd= st.secrets["db_password"],
+connection = 1
 
-    db="database",
-    ssl_ca="cacert-2023-01-10.pem"
+#mysql.connector.connect(
+  #  host="3.15.168.131",
+#    user= st.secrets["db_username"],
+ #   passwd= st.secrets["db_password"],
+
+  #  db="database",
+   # ssl_ca="cacert-2023-01-10.pem"
 
 
-)
+#)
 
 
 c = connection.cursor()
