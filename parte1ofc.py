@@ -32,7 +32,7 @@ connection = 1
 #)
 
 
-c = connection.cursor()
+#c = connection.cursor()
 
 ##FAZENDO TELA DE LOGIN##
 with open('config.yml') as file:
@@ -152,15 +152,15 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
             list_tablesofc = st.selectbox('Escolha a primeira tabela',
                                           list_tables)
             if (list_tablesofc != None):
-                data = pd.read_sql(
-                    "SELECT * FROM "+list_tablesofc, con=connection)
+               # data = pd.read_sql(
+                #    "SELECT * FROM "+list_tablesofc, con=connection)
                 st.dataframe(data)
 
             list_tablesofc2 = st.selectbox('Escolha a segunda tabela',
                                            list_tables)
             if (list_tablesofc2 != None):
-                data2 = pd.read_sql(
-                    "SELECT * FROM "+list_tablesofc2, con=connection)
+                #data2 = pd.read_sql(
+                 #   "SELECT * FROM "+list_tablesofc2, con=connection)
                 st.dataframe(data2)
 
             listTT = list(set(data2['PACIENTE']) - set(data['PACIENTE']))
@@ -186,8 +186,8 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
             list_tablesofc = st.selectbox('Escolha a primeira tabela',
                                           list_tables)
             if (list_tablesofc != None):
-                data = pd.read_sql(
-                    "SELECT * FROM "+list_tablesofc, con=connection)
+               # data = pd.read_sql(
+                #    "SELECT * FROM "+list_tablesofc, con=connection)
 
                 data = data.drop(
                     ["DATA_DE_ENCERRAMENTO", "DURACAO_DO_TTO"], axis=1)
@@ -520,22 +520,22 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                     with zipfile.ZipFile(buffer, "w") as zip:
                         for i in list_tables:
                             with st.spinner('Aguarde...'):
-                                data = pd.read_sql(
-                                    "SELECT * FROM " + i, con=connection)
+                                #data = pd.read_sql(
+                                 #   "SELECT * FROM " + i, con=connection)
                             excel_data = to_excel(data)
                             zip.writestr(i + ".xlsx", excel_data)
-                            connection.close()
-                            connection = mysql.connector.connect(
-                                host="aws.connect.psdb.cloud",
-                                user=st.secrets["db_username"],
-                                passwd=st.secrets["db_password"],
-                                connection_timeout=120,
+                            #connection.close()
+                           # connection = mysql.connector.connect(
+                            #    host="aws.connect.psdb.cloud",
+                             #   user=st.secrets["db_username"],
+                              #  passwd=st.secrets["db_password"],
+                               # connection_timeout=120,
                             
-                                db="database",
-                                ssl_ca="cacert-2023-01-10.pem"
+                                #db="database",
+                                #ssl_ca="cacert-2023-01-10.pem"
                             
                             
-                            )
+                            #)
                     buffer.seek(0)
 
                     down = st.download_button(
@@ -695,7 +695,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                                   list_chart)
 
         if (list_tablesofc != None) & (type_columns != []) & (list_tablesofc != None):
-            data = pd.read_sql("SELECT * FROM "+list_tablesofc, con=connection)
+            #data = pd.read_sql("SELECT * FROM "+list_tablesofc, con=connection)
             st.dataframe(data)
             fig = plt.figure(figsize=(12, 9))
 
