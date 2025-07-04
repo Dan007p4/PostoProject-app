@@ -523,7 +523,7 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                                 #data = pd.read_sql(
                                  #   "SELECT * FROM " + i, con=connection)
                             #excel_data = to_excel(data)
-                            zip.writestr(i + ".xlsx", excel_data)
+                            #zip.writestr(i + ".xlsx", excel_data)
                             #connection.close()
                            # connection = mysql.connector.connect(
                             #    host="aws.connect.psdb.cloud",
