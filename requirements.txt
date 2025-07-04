@@ -13,6 +13,6 @@ XlsxWriter ==3.1.2
 pyxlsb == 1.0.10
 Python-IO == 0.3
 DateTime == 5.2
-numpy==1.26.4
+numpy==1.26.3
 
 
