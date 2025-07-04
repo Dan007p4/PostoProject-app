@@ -536,11 +536,11 @@ if (authentication_status == True) & (username == 'comissaoferidas'):
                             
                             
                             #)
-                    buffer.seek(0)
+                    #buffer.seek(0)
 
                     down = st.download_button(
                         label="Fazer dowload de todas as tabelas",
-                        data=buffer,
+                        #data=buffer,
                         file_name="todasTabelas.zip"
                     )
                     st.success(":green[TODAS TABELAS BAIXADAS COM SUCESSO!]")
