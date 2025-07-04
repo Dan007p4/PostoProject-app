@@ -1,4 +1,4 @@
-pandas==2.0.1
+pandas==1.5.3
 streamlit-option-menu==0.3.4
 streamlit-authenticator==0.2.2
 PyYAML==6.0
